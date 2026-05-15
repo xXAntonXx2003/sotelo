@@ -6,10 +6,12 @@ namespace GestionEstudiantes.UI
 {
     public partial class FormPrincipal : Form
     {
-        private EstudianteRepository _repository;
+        private readonly EstudianteRepository _repository;
         private DataGridView dgvEstudiantes = null!;
         private TextBox txtBuscar = null!;
+        private ComboBox cmbFiltroBusqueda = null!;
         private Button btnBuscar = null!;
+        private Button btnLimpiar = null!;
         private Button btnAgregar = null!;
         private Button btnEditar = null!;
         private Button btnEliminar = null!;
@@ -19,6 +21,16 @@ namespace GestionEstudiantes.UI
         private Panel panelSuperior = null!;
         private Panel panelInferior = null!;
         private Panel panelLateral = null!;
+
+        private static readonly Color ColorFondo = Color.FromArgb(244, 247, 251);
+        private static readonly Color ColorPrimario = Color.FromArgb(29, 78, 216);
+        private static readonly Color ColorPrimarioOscuro = Color.FromArgb(30, 64, 175);
+        private static readonly Color ColorTexto = Color.FromArgb(30, 41, 59);
+        private static readonly Color ColorTextoSuave = Color.FromArgb(100, 116, 139);
+        private static readonly Color ColorBorde = Color.FromArgb(226, 232, 240);
+        private static readonly Color ColorExito = Color.FromArgb(22, 163, 74);
+        private static readonly Color ColorPeligro = Color.FromArgb(220, 38, 38);
+        private static readonly Color ColorNeutral = Color.FromArgb(71, 85, 105);
 
         public FormPrincipal()
         {
@@ -31,246 +43,379 @@ namespace GestionEstudiantes.UI
 
         private void InitializeComponent()
         {
-            this.SuspendLayout();
+            SuspendLayout();
 
-            // Configuración del formulario principal
-            this.Text = "Sistema de Gestión de Estudiantes";
-            this.Size = new Size(1100, 700);
-            this.MinimumSize = new Size(900, 600);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = Color.FromArgb(245, 247, 250);
-            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+            Text = "Gestion de Estudiantes";
+            Size = new Size(1180, 740);
+            MinimumSize = new Size(1000, 640);
+            StartPosition = FormStartPosition.CenterScreen;
+            BackColor = ColorFondo;
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular);
 
-            // Panel Superior (Header)
-            panelSuperior = new Panel
+            panelSuperior = CrearHeader();
+            panelLateral = CrearPanelLateral();
+            panelInferior = CrearBarraEstado();
+            var panelContenedor = CrearContenido();
+
+            Controls.Add(panelContenedor);
+            Controls.Add(panelLateral);
+            Controls.Add(panelInferior);
+            Controls.Add(panelSuperior);
+
+            ResumeLayout(false);
+        }
+
+        private Panel CrearHeader()
+        {
+            var panel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 80,
-                BackColor = Color.FromArgb(59, 130, 246),
-                Padding = new Padding(20, 0, 20, 0)
+                Height = 86,
+                BackColor = ColorPrimario,
+                Padding = new Padding(24, 14, 24, 12)
             };
 
             var lblTitulo = new Label
             {
-                Text = "Sistema de Gestión de Estudiantes",
+                Text = "Gestion de Estudiantes",
+                Dock = DockStyle.Top,
+                Height = 34,
                 Font = new Font("Segoe UI", 18F, FontStyle.Bold),
                 ForeColor = Color.White,
-                AutoSize = true,
-                Location = new Point(20, 15)
+                TextAlign = ContentAlignment.MiddleLeft
             };
 
             var lblSubtitulo = new Label
             {
-                Text = "Administra la información de los estudiantes de manera eficiente",
-                Font = new Font("Segoe UI", 10F, FontStyle.Regular),
+                Text = "Administra registros, contacto y estadisticas academicas",
+                Dock = DockStyle.Top,
+                Height = 24,
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Regular),
                 ForeColor = Color.FromArgb(219, 234, 254),
-                AutoSize = true,
-                Location = new Point(20, 48)
+                TextAlign = ContentAlignment.MiddleLeft
             };
 
-            panelSuperior.Controls.AddRange(new Control[] { lblTitulo, lblSubtitulo });
+            panel.Controls.Add(lblSubtitulo);
+            panel.Controls.Add(lblTitulo);
 
-            // Panel Lateral (Sidebar con botones)
-            panelLateral = new Panel
+            return panel;
+        }
+
+        private Panel CrearPanelLateral()
+        {
+            var panel = new Panel
             {
                 Dock = DockStyle.Left,
-                Width = 220,
+                Width = 238,
                 BackColor = Color.White,
-                Padding = new Padding(15)
+                Padding = new Padding(18)
             };
 
-            // Estilo de botones
-            var buttonStyle = new Action<Button, string, Color>((btn, text, color) =>
-            {
-                btn.Text = text;
-                btn.Size = new Size(190, 45);
-                btn.FlatStyle = FlatStyle.Flat;
-                btn.FlatAppearance.BorderSize = 0;
-                btn.BackColor = color;
-                btn.ForeColor = Color.White;
-                btn.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-                btn.Cursor = Cursors.Hand;
-                btn.TextAlign = ContentAlignment.MiddleCenter;
-            });
-
-            btnAgregar = new Button();
-            buttonStyle(btnAgregar, "Agregar Estudiante", Color.FromArgb(34, 197, 94));
-            btnAgregar.Location = new Point(15, 20);
+            btnAgregar = CrearBotonMenu("Agregar estudiante", ColorExito, new Point(18, 22));
             btnAgregar.Click += BtnAgregar_Click;
 
-            btnEditar = new Button();
-            buttonStyle(btnEditar, "Editar Estudiante", Color.FromArgb(59, 130, 246));
-            btnEditar.Location = new Point(15, 75);
+            btnEditar = CrearBotonMenu("Editar seleccionado", ColorPrimario, new Point(18, 78));
             btnEditar.Click += BtnEditar_Click;
 
-            btnEliminar = new Button();
-            buttonStyle(btnEliminar, "Eliminar Estudiante", Color.FromArgb(239, 68, 68));
-            btnEliminar.Location = new Point(15, 130);
+            btnEliminar = CrearBotonMenu("Eliminar seleccionado", ColorPeligro, new Point(18, 134));
             btnEliminar.Click += BtnEliminar_Click;
 
-            btnRefrescar = new Button();
-            buttonStyle(btnRefrescar, "Refrescar Lista", Color.FromArgb(107, 114, 128));
-            btnRefrescar.Location = new Point(15, 185);
+            btnRefrescar = CrearBotonMenu("Actualizar lista", ColorNeutral, new Point(18, 190));
             btnRefrescar.Click += BtnRefrescar_Click;
 
-            // Panel de estadísticas en el lateral
             var panelEstadisticas = new Panel
             {
-                Location = new Point(15, 260),
-                Size = new Size(190, 180),
-                BackColor = Color.FromArgb(249, 250, 251),
-                Padding = new Padding(10)
+                Location = new Point(18, 270),
+                Size = new Size(202, 210),
+                BackColor = Color.FromArgb(248, 250, 252),
+                Padding = new Padding(14),
+                BorderStyle = BorderStyle.FixedSingle
             };
 
             var lblEstadisticasTitulo = new Label
             {
-                Text = "Estadísticas",
+                Text = "Resumen",
+                Dock = DockStyle.Top,
+                Height = 28,
                 Font = new Font("Segoe UI", 11F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(55, 65, 81),
-                Location = new Point(10, 10),
-                AutoSize = true
+                ForeColor = ColorTexto,
+                TextAlign = ContentAlignment.MiddleLeft
             };
 
             lblEstadisticas = new Label
             {
                 Text = "Cargando...",
+                Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI", 9F, FontStyle.Regular),
-                ForeColor = Color.FromArgb(107, 114, 128),
-                Location = new Point(10, 40),
-                Size = new Size(170, 130),
-                AutoSize = false
+                ForeColor = ColorTextoSuave,
+                TextAlign = ContentAlignment.TopLeft
             };
 
-            panelEstadisticas.Controls.AddRange(new Control[] { lblEstadisticasTitulo, lblEstadisticas });
+            panelEstadisticas.Controls.Add(lblEstadisticas);
+            panelEstadisticas.Controls.Add(lblEstadisticasTitulo);
 
-            panelLateral.Controls.AddRange(new Control[] { btnAgregar, btnEditar, btnEliminar, btnRefrescar, panelEstadisticas });
+            panel.Controls.AddRange(new Control[]
+            {
+                btnAgregar,
+                btnEditar,
+                btnEliminar,
+                btnRefrescar,
+                panelEstadisticas
+            });
 
-            // Panel Inferior (Barra de búsqueda y total)
-            panelInferior = new Panel
+            return panel;
+        }
+
+        private Panel CrearBarraEstado()
+        {
+            var panel = new Panel
             {
                 Dock = DockStyle.Bottom,
-                Height = 50,
+                Height = 46,
                 BackColor = Color.White,
-                Padding = new Padding(20, 10, 20, 10)
+                Padding = new Padding(22, 10, 22, 10)
             };
 
             lblTotal = new Label
             {
                 Text = "Total: 0 estudiantes",
-                Font = new Font("Segoe UI", 10F, FontStyle.Regular),
-                ForeColor = Color.FromArgb(107, 114, 128),
-                AutoSize = true,
-                Location = new Point(20, 15)
+                Dock = DockStyle.Left,
+                Width = 420,
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Regular),
+                ForeColor = ColorTextoSuave,
+                TextAlign = ContentAlignment.MiddleLeft
             };
 
-            panelInferior.Controls.Add(lblTotal);
+            var lblAyuda = new Label
+            {
+                Text = "Doble clic sobre una fila para editar",
+                Dock = DockStyle.Right,
+                Width = 280,
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+                ForeColor = ColorTextoSuave,
+                TextAlign = ContentAlignment.MiddleRight
+            };
 
-            // Panel de búsqueda
-            var panelBusqueda = new Panel
+            panel.Controls.Add(lblAyuda);
+            panel.Controls.Add(lblTotal);
+
+            return panel;
+        }
+
+        private Panel CrearContenido()
+        {
+            var panel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = ColorFondo,
+                Padding = new Padding(22)
+            };
+
+            var panelBusqueda = CrearPanelBusqueda();
+            dgvEstudiantes = CrearGridEstudiantes();
+
+            panel.Controls.Add(dgvEstudiantes);
+            panel.Controls.Add(panelBusqueda);
+
+            return panel;
+        }
+
+        private Panel CrearPanelBusqueda()
+        {
+            var panel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 60,
+                Height = 88,
                 BackColor = Color.White,
-                Padding = new Padding(20, 10, 20, 10)
+                Padding = new Padding(18, 12, 18, 12)
             };
 
             var lblBuscar = new Label
             {
-                Text = "Buscar:",
-                Font = new Font("Segoe UI", 10F, FontStyle.Regular),
-                ForeColor = Color.FromArgb(55, 65, 81),
-                AutoSize = true,
-                Location = new Point(20, 20)
+                Text = "Buscar",
+                Location = new Point(18, 13),
+                Size = new Size(150, 20),
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                ForeColor = ColorTexto,
+                TextAlign = ContentAlignment.MiddleLeft
             };
 
             txtBuscar = new TextBox
             {
-                Size = new Size(300, 30),
-                Location = new Point(80, 15),
+                Location = new Point(18, 39),
+                Size = new Size(300, 28),
                 Font = new Font("Segoe UI", 10F),
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.FixedSingle,
+                PlaceholderText = "Escribe el texto a buscar"
             };
-            txtBuscar.KeyPress += TxtBuscar_KeyPress;
+            txtBuscar.TextChanged += TxtBuscar_TextChanged;
+            txtBuscar.KeyDown += TxtBuscar_KeyDown;
 
-            btnBuscar = new Button
+            var lblFiltro = new Label
             {
-                Text = "Buscar",
-                Size = new Size(100, 30),
-                Location = new Point(390, 15),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(59, 130, 246),
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                Cursor = Cursors.Hand
+                Text = "Filtro",
+                Location = new Point(334, 13),
+                Size = new Size(140, 20),
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                ForeColor = ColorTexto,
+                TextAlign = ContentAlignment.MiddleLeft
             };
-            btnBuscar.FlatAppearance.BorderSize = 0;
+
+            cmbFiltroBusqueda = new ComboBox
+            {
+                Location = new Point(334, 38),
+                Size = new Size(150, 30),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font = new Font("Segoe UI", 9.5F),
+                FlatStyle = FlatStyle.Flat
+            };
+            cmbFiltroBusqueda.Items.AddRange(new object[]
+            {
+                "Nombre",
+                "Apellido",
+                "Email",
+                "Telefono",
+                "Edad",
+                "ID",
+                "Todos"
+            });
+            cmbFiltroBusqueda.SelectedIndex = 0;
+            cmbFiltroBusqueda.SelectedIndexChanged += CmbFiltroBusqueda_SelectedIndexChanged;
+
+            btnBuscar = CrearBotonAccion("Buscar", ColorPrimario, new Point(500, 38), new Size(104, 30));
             btnBuscar.Click += BtnBuscar_Click;
 
-            panelBusqueda.Controls.AddRange(new Control[] { lblBuscar, txtBuscar, btnBuscar });
+            btnLimpiar = CrearBotonAccion("Limpiar", ColorNeutral, new Point(614, 38), new Size(104, 30));
+            btnLimpiar.Click += BtnLimpiar_Click;
 
-            // DataGridView principal
-            dgvEstudiantes = new DataGridView
+            panel.Controls.AddRange(new Control[] { lblBuscar, txtBuscar, lblFiltro, cmbFiltroBusqueda, btnBuscar, btnLimpiar });
+
+            return panel;
+        }
+
+        private DataGridView CrearGridEstudiantes()
+        {
+            var grid = new DataGridView
             {
                 Dock = DockStyle.Fill,
                 BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None,
+                BorderStyle = BorderStyle.FixedSingle,
+                AutoGenerateColumns = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                AutoGenerateColumns = true,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 MultiSelect = false,
                 ReadOnly = true,
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,
+                AllowUserToResizeRows = false,
                 RowHeadersVisible = false,
                 EnableHeadersVisualStyles = false,
-                Font = new Font("Segoe UI", 9F)
+                GridColor = ColorBorde,
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
+                Font = new Font("Segoe UI", 9F),
+                RowTemplate = { Height = 42 }
             };
 
-            // Estilo del encabezado
-            dgvEstudiantes.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(59, 130, 246);
-            dgvEstudiantes.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvEstudiantes.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            dgvEstudiantes.ColumnHeadersDefaultCellStyle.Padding = new Padding(10, 5, 10, 5);
-            dgvEstudiantes.ColumnHeadersHeight = 45;
-            dgvEstudiantes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            grid.ColumnHeadersDefaultCellStyle.BackColor = ColorPrimarioOscuro;
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            grid.ColumnHeadersDefaultCellStyle.Padding = new Padding(10, 6, 10, 6);
+            grid.ColumnHeadersHeight = 42;
+            grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
-            // Estilo de las filas
-            dgvEstudiantes.DefaultCellStyle.Padding = new Padding(10, 8, 10, 8);
-            dgvEstudiantes.DefaultCellStyle.SelectionBackColor = Color.FromArgb(219, 234, 254);
-            dgvEstudiantes.DefaultCellStyle.SelectionForeColor = Color.FromArgb(30, 64, 175);
-            dgvEstudiantes.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(249, 250, 251);
-            dgvEstudiantes.RowTemplate.Height = 40;
+            grid.DefaultCellStyle.Padding = new Padding(10, 6, 10, 6);
+            grid.DefaultCellStyle.BackColor = Color.White;
+            grid.DefaultCellStyle.ForeColor = ColorTexto;
+            grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(219, 234, 254);
+            grid.DefaultCellStyle.SelectionForeColor = ColorPrimarioOscuro;
+            grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
 
-            dgvEstudiantes.CellDoubleClick += DgvEstudiantes_CellDoubleClick;
+            grid.Columns.Add(CrearColumna("Id", "ID", 56, DataGridViewAutoSizeColumnMode.None));
+            grid.Columns.Add(CrearColumna("Nombre", "Nombre", 120));
+            grid.Columns.Add(CrearColumna("Apellido", "Apellido", 120));
+            grid.Columns.Add(CrearColumna("Edad", "Edad", 70, DataGridViewAutoSizeColumnMode.None));
+            grid.Columns.Add(CrearColumna("Email", "Email", 180));
+            grid.Columns.Add(CrearColumna("Telefono", "Telefono", 130));
+            grid.Columns.Add(CrearColumna("FechaRegistro", "Registro", 120, format: "dd/MM/yyyy"));
 
-            // Panel contenedor principal
-            var panelContenedor = new Panel
+            grid.CellDoubleClick += DgvEstudiantes_CellDoubleClick;
+
+            return grid;
+        }
+
+        private static DataGridViewTextBoxColumn CrearColumna(
+            string propiedad,
+            string encabezado,
+            float ancho,
+            DataGridViewAutoSizeColumnMode modo = DataGridViewAutoSizeColumnMode.Fill,
+            string? format = null)
+        {
+            var columna = new DataGridViewTextBoxColumn
             {
-                Dock = DockStyle.Fill,
-                Padding = new Padding(20)
+                DataPropertyName = propiedad,
+                Name = propiedad,
+                HeaderText = encabezado,
+                AutoSizeMode = modo,
+                FillWeight = ancho,
+                MinimumWidth = modo == DataGridViewAutoSizeColumnMode.None ? (int)ancho : 80,
+                Width = modo == DataGridViewAutoSizeColumnMode.None ? (int)ancho : 100
             };
 
-            panelContenedor.Controls.Add(dgvEstudiantes);
-            panelContenedor.Controls.Add(panelBusqueda);
+            if (!string.IsNullOrEmpty(format))
+            {
+                columna.DefaultCellStyle.Format = format;
+            }
 
-            // Agregar todos los paneles al formulario
-            this.Controls.Add(panelContenedor);
-            this.Controls.Add(panelLateral);
-            this.Controls.Add(panelInferior);
-            this.Controls.Add(panelSuperior);
+            return columna;
+        }
 
-            this.ResumeLayout(false);
+        private static Button CrearBotonMenu(string texto, Color color, Point ubicacion)
+        {
+            return PrepararBoton(new Button
+            {
+                Text = texto,
+                Location = ubicacion,
+                Size = new Size(202, 44)
+            }, color);
+        }
+
+        private static Button CrearBotonAccion(string texto, Color color, Point ubicacion, Size tamano)
+        {
+            return PrepararBoton(new Button
+            {
+                Text = texto,
+                Location = ubicacion,
+                Size = tamano
+            }, color);
+        }
+
+        private static Button PrepararBoton(Button boton, Color color)
+        {
+            boton.FlatStyle = FlatStyle.Flat;
+            boton.FlatAppearance.BorderSize = 0;
+            boton.FlatAppearance.MouseOverBackColor = ControlPaint.Light(color, 0.15F);
+            boton.FlatAppearance.MouseDownBackColor = ControlPaint.Dark(color, 0.08F);
+            boton.BackColor = color;
+            boton.ForeColor = Color.White;
+            boton.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            boton.Cursor = Cursors.Hand;
+            boton.TextAlign = ContentAlignment.MiddleCenter;
+
+            return boton;
         }
 
         private void CargarEstudiantes()
         {
             var estudiantes = _repository.ObtenerTodos();
+            MostrarEstudiantes(estudiantes, $"Total: {estudiantes.Count} estudiante(s) registrado(s)");
+        }
+
+        private void MostrarEstudiantes(List<Estudiante> estudiantes, string textoTotal)
+        {
             dgvEstudiantes.DataSource = null;
             dgvEstudiantes.DataSource = estudiantes;
-
-            ConfigurarColumnasEstudiantes();
-
-            lblTotal.Text = $"Total: {estudiantes.Count} estudiante(s) registrado(s)";
+            lblTotal.Text = textoTotal;
         }
 
         private void ActualizarEstadisticas()
@@ -284,102 +429,105 @@ namespace GestionEstudiantes.UI
                 int edadMaxima = estudiantes.Max(e => e.Edad);
                 int edadMinima = estudiantes.Min(e => e.Edad);
 
-                lblEstadisticas.Text = $"Total: {total} estudiantes\n\n" +
-                                      $"Edad promedio: {edadPromedio:F1} años\n\n" +
-                                      $"Edad máxima: {edadMaxima} años\n\n" +
-                                      $"Edad mínima: {edadMinima} años";
+                lblEstadisticas.Text =
+                    $"Total: {total} estudiantes{Environment.NewLine}{Environment.NewLine}" +
+                    $"Edad promedio: {edadPromedio:F1} anos{Environment.NewLine}{Environment.NewLine}" +
+                    $"Edad maxima: {edadMaxima} anos{Environment.NewLine}{Environment.NewLine}" +
+                    $"Edad minima: {edadMinima} anos";
             }
             else
             {
-                lblEstadisticas.Text = "No hay estudiantes\nregistrados.";
+                lblEstadisticas.Text = "No hay estudiantes registrados.";
             }
         }
 
         private void BtnAgregar_Click(object? sender, EventArgs e)
         {
-            using (var form = new FormEstudiante())
+            using var form = new FormEstudiante();
+
+            if (form.ShowDialog() != DialogResult.OK)
             {
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    if (_repository.AgregarEstudiante(form.Estudiante))
-                    {
-                        CargarEstudiantes();
-                        ActualizarEstadisticas();
-                        MessageBox.Show("Estudiante agregado exitosamente.", "Éxito", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Error al agregar el estudiante.", "Error", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
+                return;
             }
+
+            if (_repository.AgregarEstudiante(form.Estudiante))
+            {
+                txtBuscar.Clear();
+                CargarEstudiantes();
+                ActualizarEstadisticas();
+                MessageBox.Show("Estudiante agregado exitosamente.", "Exito",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            MessageBox.Show("Error al agregar el estudiante.", "Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void BtnEditar_Click(object? sender, EventArgs e)
         {
-            if (dgvEstudiantes.SelectedRows.Count == 0)
+            var estudiante = ObtenerEstudianteSeleccionado();
+
+            if (estudiante == null)
             {
-                MessageBox.Show("Seleccione un estudiante para editar.", "Aviso", 
+                MessageBox.Show("Seleccione un estudiante para editar.", "Aviso",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            var estudiante = (Estudiante)dgvEstudiantes.SelectedRows[0].DataBoundItem;
-            
-            using (var form = new FormEstudiante(estudiante))
+            using var form = new FormEstudiante(estudiante);
+
+            if (form.ShowDialog() != DialogResult.OK)
             {
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    if (_repository.ActualizarEstudiante(estudiante.Id, form.Estudiante))
-                    {
-                        CargarEstudiantes();
-                        ActualizarEstadisticas();
-                        MessageBox.Show("Estudiante actualizado exitosamente.", "Éxito", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Error al actualizar el estudiante.", "Error", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
+                return;
             }
+
+            if (_repository.ActualizarEstudiante(estudiante.Id, form.Estudiante))
+            {
+                RefrescarListadoActual();
+                ActualizarEstadisticas();
+                MessageBox.Show("Estudiante actualizado exitosamente.", "Exito",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            MessageBox.Show("Error al actualizar el estudiante.", "Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void BtnEliminar_Click(object? sender, EventArgs e)
         {
-            if (dgvEstudiantes.SelectedRows.Count == 0)
+            var estudiante = ObtenerEstudianteSeleccionado();
+
+            if (estudiante == null)
             {
-                MessageBox.Show("Seleccione un estudiante para eliminar.", "Aviso", 
+                MessageBox.Show("Seleccione un estudiante para eliminar.", "Aviso",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            var estudiante = (Estudiante)dgvEstudiantes.SelectedRows[0].DataBoundItem;
-            
             var result = MessageBox.Show(
-                $"¿Está seguro de eliminar al estudiante {estudiante.Nombre} {estudiante.Apellido}?",
-                "Confirmar eliminación",
+                $"Desea eliminar a {estudiante.Nombre} {estudiante.Apellido}?",
+                "Confirmar eliminacion",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
-            if (result == DialogResult.Yes)
+            if (result != DialogResult.Yes)
             {
-                if (_repository.EliminarEstudiante(estudiante.Id))
-                {
-                    CargarEstudiantes();
-                    ActualizarEstadisticas();
-                    MessageBox.Show("Estudiante eliminado exitosamente.", "Éxito", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Error al eliminar el estudiante.", "Error", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                return;
             }
+
+            if (_repository.EliminarEstudiante(estudiante.Id))
+            {
+                RefrescarListadoActual();
+                ActualizarEstadisticas();
+                MessageBox.Show("Estudiante eliminado exitosamente.", "Exito",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            MessageBox.Show("Error al eliminar el estudiante.", "Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void BtnRefrescar_Click(object? sender, EventArgs e)
@@ -394,63 +542,66 @@ namespace GestionEstudiantes.UI
             Buscar();
         }
 
-        private void TxtBuscar_KeyPress(object? sender, KeyPressEventArgs e)
+        private void BtnLimpiar_Click(object? sender, EventArgs e)
         {
-            if (e.KeyChar == (char)Keys.Enter)
+            txtBuscar.Clear();
+            CargarEstudiantes();
+        }
+
+        private void TxtBuscar_TextChanged(object? sender, EventArgs e)
+        {
+            Buscar();
+        }
+
+        private void CmbFiltroBusqueda_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            Buscar();
+        }
+
+        private void TxtBuscar_KeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
             {
                 Buscar();
-                e.Handled = true;
+                e.SuppressKeyPress = true;
             }
         }
 
         private void Buscar()
         {
             string termino = txtBuscar.Text.Trim();
-            
-            if (string.IsNullOrEmpty(termino))
+
+            if (string.IsNullOrWhiteSpace(termino))
             {
                 CargarEstudiantes();
                 return;
             }
 
-            var estudiantes = _repository.BuscarPorNombre(termino);
-            dgvEstudiantes.DataSource = null;
-            dgvEstudiantes.DataSource = estudiantes;
-
-            ConfigurarColumnasEstudiantes();
-
-            lblTotal.Text = $"Resultados: {estudiantes.Count} estudiante(s) encontrado(s)";
+            string filtro = cmbFiltroBusqueda.SelectedItem?.ToString() ?? "Nombre";
+            var estudiantes = _repository.Buscar(termino, filtro);
+            MostrarEstudiantes(estudiantes, $"Resultados: {estudiantes.Count} estudiante(s) encontrado(s)");
         }
 
-        private void ConfigurarColumnasEstudiantes()
+        private void RefrescarListadoActual()
         {
-            ConfigurarColumna("Id", "ID", 60);
-            ConfigurarColumna("Nombre", "Nombre");
-            ConfigurarColumna("Apellido", "Apellido");
-            ConfigurarColumna("Edad", "Edad", 80);
-            ConfigurarColumna("Email", "Correo Electronico");
-            ConfigurarColumna("Telefono", "Telefono");
-            ConfigurarColumna("FechaRegistro", "Fecha de Registro", format: "dd/MM/yyyy");
+            if (string.IsNullOrWhiteSpace(txtBuscar.Text))
+            {
+                CargarEstudiantes();
+            }
+            else
+            {
+                Buscar();
+            }
         }
 
-        private void ConfigurarColumna(string nombre, string encabezado, int? ancho = null, string? format = null)
+        private Estudiante? ObtenerEstudianteSeleccionado()
         {
-            if (dgvEstudiantes.Columns[nombre] is not DataGridViewColumn columna)
+            if (dgvEstudiantes.SelectedRows.Count == 0)
             {
-                return;
+                return null;
             }
 
-            columna.HeaderText = encabezado;
-
-            if (ancho.HasValue)
-            {
-                columna.FillWeight = ancho.Value;
-            }
-
-            if (!string.IsNullOrEmpty(format))
-            {
-                columna.DefaultCellStyle.Format = format;
-            }
+            return dgvEstudiantes.SelectedRows[0].DataBoundItem as Estudiante;
         }
 
         private void DgvEstudiantes_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)

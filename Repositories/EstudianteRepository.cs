@@ -1,6 +1,8 @@
 using GestionEstudiantes.Data;
 using GestionEstudiantes.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text;
 
 namespace GestionEstudiantes.Repositories
 {
@@ -69,14 +71,25 @@ namespace GestionEstudiantes.Repositories
             }
         }
 
-        // READ: Buscar estudiante por nombre
-        public List<Estudiante> BuscarPorNombre(string nombre)
+        // READ: Buscar estudiante con filtro
+        public List<Estudiante> Buscar(string termino, string filtro)
         {
             try
             {
+                string criterio = NormalizarTexto(termino);
+                string filtroNormalizado = NormalizarTexto(filtro);
+
+                if (string.IsNullOrWhiteSpace(criterio))
+                {
+                    return ObtenerTodos();
+                }
+
                 return _context.Estudiantes
-                    .Where(e => e.Nombre.Contains(nombre) || e.Apellido.Contains(nombre))
+                    .AsNoTracking()
+                    .AsEnumerable()
+                    .Where(e => CoincideConFiltro(e, criterio, filtroNormalizado))
                     .OrderBy(e => e.Nombre)
+                    .ThenBy(e => e.Apellido)
                     .ToList();
             }
             catch (Exception ex)
@@ -84,6 +97,71 @@ namespace GestionEstudiantes.Repositories
                 Console.WriteLine($"Error al buscar estudiantes: {ex.Message}");
                 return new List<Estudiante>();
             }
+        }
+
+        // READ: Buscar estudiante por nombre
+        public List<Estudiante> BuscarPorNombre(string nombre)
+        {
+            return Buscar(nombre, "Nombre");
+        }
+
+        private static bool CoincideConFiltro(Estudiante estudiante, string criterio, string filtro)
+        {
+            return filtro switch
+            {
+                "id" => estudiante.Id.ToString().Contains(criterio),
+                "nombre" => Contiene(estudiante.Nombre, criterio) || Contiene($"{estudiante.Nombre} {estudiante.Apellido}", criterio),
+                "apellido" => Contiene(estudiante.Apellido, criterio),
+                "email" => Contiene(estudiante.Email, criterio),
+                "telefono" => Contiene(estudiante.Telefono, criterio),
+                "edad" => estudiante.Edad.ToString().Contains(criterio),
+                "todos" => estudiante.Id.ToString().Contains(criterio) ||
+                           estudiante.Edad.ToString().Contains(criterio) ||
+                           Contiene(estudiante.Nombre, criterio) ||
+                           Contiene(estudiante.Apellido, criterio) ||
+                           Contiene($"{estudiante.Nombre} {estudiante.Apellido}", criterio) ||
+                           Contiene(estudiante.Email, criterio) ||
+                           Contiene(estudiante.Telefono, criterio),
+                _ => Contiene(estudiante.Nombre, criterio) || Contiene($"{estudiante.Nombre} {estudiante.Apellido}", criterio)
+            };
+        }
+
+        private static bool Contiene(string texto, string criterio)
+        {
+            return NormalizarTexto(texto).Contains(criterio);
+        }
+
+        private static string NormalizarTexto(string texto)
+        {
+            if (string.IsNullOrWhiteSpace(texto))
+            {
+                return string.Empty;
+            }
+
+            string textoNormalizado = RepararTextoCodificado(texto.Trim().ToLowerInvariant())
+                .Normalize(NormalizationForm.FormD);
+            var resultado = new StringBuilder(textoNormalizado.Length);
+
+            foreach (char caracter in textoNormalizado)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(caracter) != UnicodeCategory.NonSpacingMark)
+                {
+                    resultado.Append(caracter);
+                }
+            }
+
+            return resultado.ToString().Normalize(NormalizationForm.FormC);
+        }
+
+        private static string RepararTextoCodificado(string texto)
+        {
+            return texto
+                .Replace("\u00e3\u00a1", "a")
+                .Replace("\u00e3\u00a9", "e")
+                .Replace("\u00e3\u00ad", "i")
+                .Replace("\u00e3\u00b3", "o")
+                .Replace("\u00e3\u00ba", "u")
+                .Replace("\u00e3\u00b1", "n");
         }
 
         // UPDATE: Actualizar estudiante
