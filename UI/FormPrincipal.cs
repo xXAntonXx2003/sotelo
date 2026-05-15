@@ -215,6 +215,7 @@ namespace GestionEstudiantes.UI
                 BackgroundColor = Color.White,
                 BorderStyle = BorderStyle.None,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                AutoGenerateColumns = true,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 MultiSelect = false,
                 ReadOnly = true,
@@ -267,20 +268,7 @@ namespace GestionEstudiantes.UI
             dgvEstudiantes.DataSource = null;
             dgvEstudiantes.DataSource = estudiantes;
 
-            // Configurar columnas
-            if (dgvEstudiantes.Columns.Count > 0)
-            {
-                dgvEstudiantes.Columns["Id"].HeaderText = "ID";
-                dgvEstudiantes.Columns["Id"].Width = 60;
-                dgvEstudiantes.Columns["Nombre"].HeaderText = "Nombre";
-                dgvEstudiantes.Columns["Apellido"].HeaderText = "Apellido";
-                dgvEstudiantes.Columns["Edad"].HeaderText = "Edad";
-                dgvEstudiantes.Columns["Edad"].Width = 80;
-                dgvEstudiantes.Columns["Email"].HeaderText = "Correo Electrónico";
-                dgvEstudiantes.Columns["Telefono"].HeaderText = "Teléfono";
-                dgvEstudiantes.Columns["FechaRegistro"].HeaderText = "Fecha de Registro";
-                dgvEstudiantes.Columns["FechaRegistro"].DefaultCellStyle.Format = "dd/MM/yyyy";
-            }
+            ConfigurarColumnasEstudiantes();
 
             lblTotal.Text = $"Total: {estudiantes.Count} estudiante(s) registrado(s)";
         }
@@ -429,21 +417,40 @@ namespace GestionEstudiantes.UI
             dgvEstudiantes.DataSource = null;
             dgvEstudiantes.DataSource = estudiantes;
 
-            if (dgvEstudiantes.Columns.Count > 0)
-            {
-                dgvEstudiantes.Columns["Id"].HeaderText = "ID";
-                dgvEstudiantes.Columns["Id"].Width = 60;
-                dgvEstudiantes.Columns["Nombre"].HeaderText = "Nombre";
-                dgvEstudiantes.Columns["Apellido"].HeaderText = "Apellido";
-                dgvEstudiantes.Columns["Edad"].HeaderText = "Edad";
-                dgvEstudiantes.Columns["Edad"].Width = 80;
-                dgvEstudiantes.Columns["Email"].HeaderText = "Correo Electrónico";
-                dgvEstudiantes.Columns["Telefono"].HeaderText = "Teléfono";
-                dgvEstudiantes.Columns["FechaRegistro"].HeaderText = "Fecha de Registro";
-                dgvEstudiantes.Columns["FechaRegistro"].DefaultCellStyle.Format = "dd/MM/yyyy";
-            }
+            ConfigurarColumnasEstudiantes();
 
             lblTotal.Text = $"Resultados: {estudiantes.Count} estudiante(s) encontrado(s)";
+        }
+
+        private void ConfigurarColumnasEstudiantes()
+        {
+            ConfigurarColumna("Id", "ID", 60);
+            ConfigurarColumna("Nombre", "Nombre");
+            ConfigurarColumna("Apellido", "Apellido");
+            ConfigurarColumna("Edad", "Edad", 80);
+            ConfigurarColumna("Email", "Correo Electronico");
+            ConfigurarColumna("Telefono", "Telefono");
+            ConfigurarColumna("FechaRegistro", "Fecha de Registro", format: "dd/MM/yyyy");
+        }
+
+        private void ConfigurarColumna(string nombre, string encabezado, int? ancho = null, string? format = null)
+        {
+            if (dgvEstudiantes.Columns[nombre] is not DataGridViewColumn columna)
+            {
+                return;
+            }
+
+            columna.HeaderText = encabezado;
+
+            if (ancho.HasValue)
+            {
+                columna.FillWeight = ancho.Value;
+            }
+
+            if (!string.IsNullOrEmpty(format))
+            {
+                columna.DefaultCellStyle.Format = format;
+            }
         }
 
         private void DgvEstudiantes_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
