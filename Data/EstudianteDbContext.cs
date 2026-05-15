@@ -42,7 +42,7 @@ namespace GestionEstudiantes.Data
                     .IsRequired();
                 
                 entity.Property(e => e.FechaRegistro)
-                    .HasDefaultValueSql("GETDATE()");
+                    .HasDefaultValueSql("datetime('now')");
             });
         }
     }
