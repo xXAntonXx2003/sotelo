@@ -5,7 +5,7 @@ namespace GestionEstudiantes.Data
 {
     public class EstudianteDbContext : DbContext
     {
-        public DbSet<Estudiante> Estudiantes { get; set; }
+        public DbSet<Estudiante> Estudiantes { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
