@@ -4,7 +4,7 @@ namespace GestionEstudiantes.UI
 {
     public partial class FormEstudiante : Form
     {
-        public Estudiante Estudiante { get; private set; }
+        public Estudiante Estudiante { get; private set; } = new Estudiante();
         private bool _esEdicion;
 
         private TextBox txtNombre = null!;
