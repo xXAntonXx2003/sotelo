@@ -325,7 +325,7 @@ namespace GestionEstudiantes.UI
             }
 
             Console.WriteLine($"\n¿Desea eliminar a {estudiante.Nombre} {estudiante.Apellido}? (S/N): ");
-            string confirmacion = Console.ReadLine().ToUpper();
+            string? confirmacion = Console.ReadLine()?.ToUpper();
 
             if (confirmacion == "S")
             {
