@@ -7,18 +7,18 @@ namespace GestionEstudiantes.UI
     public partial class FormPrincipal : Form
     {
         private EstudianteRepository _repository;
-        private DataGridView dgvEstudiantes;
-        private TextBox txtBuscar;
-        private Button btnBuscar;
-        private Button btnAgregar;
-        private Button btnEditar;
-        private Button btnEliminar;
-        private Button btnRefrescar;
-        private Label lblTotal;
-        private Label lblEstadisticas;
-        private Panel panelSuperior;
-        private Panel panelInferior;
-        private Panel panelLateral;
+        private DataGridView dgvEstudiantes = null!;
+        private TextBox txtBuscar = null!;
+        private Button btnBuscar = null!;
+        private Button btnAgregar = null!;
+        private Button btnEditar = null!;
+        private Button btnEliminar = null!;
+        private Button btnRefrescar = null!;
+        private Label lblTotal = null!;
+        private Label lblEstadisticas = null!;
+        private Panel panelSuperior = null!;
+        private Panel panelInferior = null!;
+        private Panel panelLateral = null!;
 
         public FormPrincipal()
         {
@@ -88,7 +88,7 @@ namespace GestionEstudiantes.UI
                 btn.FlatAppearance.BorderSize = 0;
                 btn.BackColor = color;
                 btn.ForeColor = Color.White;
-                btn.Font = new Font("Segoe UI", 10F, FontStyle.SemiBold);
+                btn.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
                 btn.Cursor = Cursors.Hand;
                 btn.TextAlign = ContentAlignment.MiddleCenter;
             });
@@ -200,7 +200,7 @@ namespace GestionEstudiantes.UI
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(59, 130, 246),
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9F, FontStyle.SemiBold),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnBuscar.FlatAppearance.BorderSize = 0;
@@ -228,7 +228,7 @@ namespace GestionEstudiantes.UI
             // Estilo del encabezado
             dgvEstudiantes.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(59, 130, 246);
             dgvEstudiantes.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvEstudiantes.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.SemiBold);
+            dgvEstudiantes.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             dgvEstudiantes.ColumnHeadersDefaultCellStyle.Padding = new Padding(10, 5, 10, 5);
             dgvEstudiantes.ColumnHeadersHeight = 45;
             dgvEstudiantes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
@@ -307,7 +307,7 @@ namespace GestionEstudiantes.UI
             }
         }
 
-        private void BtnAgregar_Click(object sender, EventArgs e)
+        private void BtnAgregar_Click(object? sender, EventArgs e)
         {
             using (var form = new FormEstudiante())
             {
@@ -329,7 +329,7 @@ namespace GestionEstudiantes.UI
             }
         }
 
-        private void BtnEditar_Click(object sender, EventArgs e)
+        private void BtnEditar_Click(object? sender, EventArgs e)
         {
             if (dgvEstudiantes.SelectedRows.Count == 0)
             {
@@ -360,7 +360,7 @@ namespace GestionEstudiantes.UI
             }
         }
 
-        private void BtnEliminar_Click(object sender, EventArgs e)
+        private void BtnEliminar_Click(object? sender, EventArgs e)
         {
             if (dgvEstudiantes.SelectedRows.Count == 0)
             {
@@ -394,19 +394,19 @@ namespace GestionEstudiantes.UI
             }
         }
 
-        private void BtnRefrescar_Click(object sender, EventArgs e)
+        private void BtnRefrescar_Click(object? sender, EventArgs e)
         {
             txtBuscar.Clear();
             CargarEstudiantes();
             ActualizarEstadisticas();
         }
 
-        private void BtnBuscar_Click(object sender, EventArgs e)
+        private void BtnBuscar_Click(object? sender, EventArgs e)
         {
             Buscar();
         }
 
-        private void TxtBuscar_KeyPress(object sender, KeyPressEventArgs e)
+        private void TxtBuscar_KeyPress(object? sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
@@ -446,7 +446,7 @@ namespace GestionEstudiantes.UI
             lblTotal.Text = $"Resultados: {estudiantes.Count} estudiante(s) encontrado(s)";
         }
 
-        private void DgvEstudiantes_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void DgvEstudiantes_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
             {
