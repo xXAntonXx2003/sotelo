@@ -7,15 +7,15 @@ namespace GestionEstudiantes.UI
         public Estudiante Estudiante { get; private set; }
         private bool _esEdicion;
 
-        private TextBox txtNombre;
-        private TextBox txtApellido;
-        private NumericUpDown numEdad;
-        private TextBox txtEmail;
-        private TextBox txtTelefono;
-        private Button btnGuardar;
-        private Button btnCancelar;
+        private TextBox txtNombre = null!;
+        private TextBox txtApellido = null!;
+        private NumericUpDown numEdad = null!;
+        private TextBox txtEmail = null!;
+        private TextBox txtTelefono = null!;
+        private Button btnGuardar = null!;
+        private Button btnCancelar = null!;
 
-        public FormEstudiante(Estudiante estudiante = null)
+        public FormEstudiante(Estudiante? estudiante = null)
         {
             _esEdicion = estudiante != null;
             Estudiante = estudiante ?? new Estudiante();
@@ -71,7 +71,6 @@ namespace GestionEstudiantes.UI
 
             // Crear campos
             int yPos = 20;
-            int labelWidth = 100;
             int textBoxWidth = 260;
             int spacing = 55;
 
@@ -137,7 +136,7 @@ namespace GestionEstudiantes.UI
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(34, 197, 94),
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10F, FontStyle.SemiBold),
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnGuardar.FlatAppearance.BorderSize = 0;
@@ -151,7 +150,7 @@ namespace GestionEstudiantes.UI
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(107, 114, 128),
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10F, FontStyle.SemiBold),
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnCancelar.FlatAppearance.BorderSize = 0;
@@ -199,7 +198,7 @@ namespace GestionEstudiantes.UI
             txtTelefono.Text = Estudiante.Telefono;
         }
 
-        private void BtnGuardar_Click(object sender, EventArgs e)
+        private void BtnGuardar_Click(object? sender, EventArgs e)
         {
             // Validaciones
             if (string.IsNullOrWhiteSpace(txtNombre.Text))
@@ -241,7 +240,7 @@ namespace GestionEstudiantes.UI
             this.Close();
         }
 
-        private void BtnCancelar_Click(object sender, EventArgs e)
+        private void BtnCancelar_Click(object? sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();
