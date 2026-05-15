@@ -56,7 +56,7 @@ namespace GestionEstudiantes.Repositories
         }
 
         // READ: Buscar estudiante por ID
-        public Estudiante ObtenerPorId(int id)
+        public Estudiante? ObtenerPorId(int id)
         {
             try
             {

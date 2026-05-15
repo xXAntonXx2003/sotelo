@@ -36,7 +36,7 @@ namespace GestionEstudiantes.UI
                 Console.WriteLine();
                 Console.Write("Seleccione una opción (1-8): ");
 
-                string opcion = Console.ReadLine();
+                string? opcion = Console.ReadLine();
 
                 switch (opcion)
                 {
@@ -83,10 +83,10 @@ namespace GestionEstudiantes.UI
             try
             {
                 Console.Write("Nombre: ");
-                string nombre = Console.ReadLine();
+                string? nombre = Console.ReadLine();
 
                 Console.Write("Apellido: ");
-                string apellido = Console.ReadLine();
+                string? apellido = Console.ReadLine();
 
                 Console.Write("Edad: ");
                 if (!int.TryParse(Console.ReadLine(), out int edad))
@@ -97,18 +97,18 @@ namespace GestionEstudiantes.UI
                 }
 
                 Console.Write("Email: ");
-                string email = Console.ReadLine();
+                string? email = Console.ReadLine();
 
                 Console.Write("Teléfono: ");
-                string telefono = Console.ReadLine();
+                string? telefono = Console.ReadLine();
 
                 var estudiante = new Estudiante
                 {
-                    Nombre = nombre,
-                    Apellido = apellido,
+                    Nombre = nombre ?? string.Empty,
+                    Apellido = apellido ?? string.Empty,
                     Edad = edad,
-                    Email = email,
-                    Telefono = telefono
+                    Email = email ?? string.Empty,
+                    Telefono = telefono ?? string.Empty
                 };
 
                 if (_repository.AgregarEstudiante(estudiante))
@@ -203,9 +203,9 @@ namespace GestionEstudiantes.UI
             Console.WriteLine("╚════════════════════════════════════════╝\n");
 
             Console.Write("Ingrese nombre o apellido a buscar: ");
-            string termino = Console.ReadLine();
+            string? termino = Console.ReadLine();
 
-            var estudiantes = _repository.BuscarPorNombre(termino);
+            var estudiantes = _repository.BuscarPorNombre(termino ?? string.Empty);
 
             if (estudiantes.Count == 0)
             {
@@ -254,14 +254,12 @@ namespace GestionEstudiantes.UI
             Console.WriteLine($"\nEstudiante actual: {estudiante.Nombre} {estudiante.Apellido}\n");
 
             Console.Write($"Nuevo nombre [{estudiante.Nombre}]: ");
-            string nombre = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(nombre))
-                nombre = estudiante.Nombre;
+            string? nombreInput = Console.ReadLine();
+            string nombre = string.IsNullOrWhiteSpace(nombreInput) ? estudiante.Nombre : nombreInput;
 
             Console.Write($"Nuevo apellido [{estudiante.Apellido}]: ");
-            string apellido = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(apellido))
-                apellido = estudiante.Apellido;
+            string? apellidoInput = Console.ReadLine();
+            string apellido = string.IsNullOrWhiteSpace(apellidoInput) ? estudiante.Apellido : apellidoInput;
 
             Console.Write($"Nueva edad [{estudiante.Edad}]: ");
             int edad = estudiante.Edad;
@@ -269,14 +267,12 @@ namespace GestionEstudiantes.UI
                 edad = edadInput;
 
             Console.Write($"Nuevo email [{estudiante.Email}]: ");
-            string email = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(email))
-                email = estudiante.Email;
+            string? emailInput = Console.ReadLine();
+            string email = string.IsNullOrWhiteSpace(emailInput) ? estudiante.Email : emailInput;
 
             Console.Write($"Nuevo teléfono [{estudiante.Telefono}]: ");
-            string telefono = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(telefono))
-                telefono = estudiante.Telefono;
+            string? telefonoInput = Console.ReadLine();
+            string telefono = string.IsNullOrWhiteSpace(telefonoInput) ? estudiante.Telefono : telefonoInput;
 
             var estudianteActualizado = new Estudiante
             {

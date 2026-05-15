@@ -11,7 +11,11 @@ namespace GestionEstudiantes.Data
         {
             // Usar SQLite para desarrollo local
             string databasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GestionEstudiantes", "estudiantes.db");
-            Directory.CreateDirectory(Path.GetDirectoryName(databasePath));
+            string? directoryPath = Path.GetDirectoryName(databasePath);
+            if (!string.IsNullOrEmpty(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
             
             optionsBuilder.UseSqlite($"Data Source={databasePath}");
         }
