@@ -1,29 +1,64 @@
 # Sistema de Gestión de Estudiantes
 
 ## Descripción
-Aplicación de consola en C# para gestionar estudiantes mediante operaciones CRUD (Crear, Leer, Actualizar, Eliminar) conectada a SQL Server.
+Aplicación de Windows Forms en C# para gestionar estudiantes mediante operaciones CRUD (Crear, Leer, Actualizar, Eliminar) con base de datos SQLite.
+
+## Interfaz Gráfica
+
+La aplicación cuenta con una interfaz gráfica moderna y amigable que incluye:
+
+- **Panel principal** con tabla de datos interactiva
+- **Barra lateral** con botones de acción
+- **Búsqueda en tiempo real** por nombre o apellido
+- **Panel de estadísticas** con información resumida
+- **Formularios modales** para agregar/editar estudiantes
+
+### Capturas de Pantalla
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│         SISTEMA DE GESTIÓN DE ESTUDIANTES                       │
+├──────────────┬──────────────────────────────────────────────────┤
+│              │  Buscar: [_________________] [Buscar]            │
+│ [+ Agregar]  ├──────────────────────────────────────────────────┤
+│              │  ID │ Nombre   │ Apellido  │ Edad │ Email        │
+│ [✎ Editar]   │ ───┼──────────┼───────────┼──────┼────────────── │
+│              │  1 │ Juan     │ Pérez     │  20  │ juan@...      │
+│ [✗ Eliminar] │  2 │ María    │ García    │  21  │ maria@...     │
+│              │  3 │ Carlos   │ López     │  22  │ carlos@...    │
+│ [↻ Refrescar]│  4 │ Ana      │ Rodríguez │  19  │ ana@...       │
+│              │                                                   │
+│ ┌──────────┐ │                                                   │
+│ │Estadíst. │ │                                                   │
+│ │Total: 5  │ │                                                   │
+│ │Prom: 21  │ │                                                   │
+│ └──────────┘ │                                                   │
+├──────────────┴──────────────────────────────────────────────────┤
+│  Total: 5 estudiante(s) registrado(s)                           │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ## Características Implementadas
 
 ### Operaciones CRUD Completas
-- ✅ **Agregar estudiante** - Crear nuevos registros con validación de datos
-- ✅ **Listar estudiantes** - Ver todos los estudiantes registrados
-- ✅ **Buscar por ID** - Consultar estudiante específico
-- ✅ **Buscar por nombre** - Búsqueda por nombre o apellido
-- ✅ **Actualizar datos** - Modificar información de estudiantes
-- ✅ **Eliminar estudiante** - Remover registros con confirmación
+- **Agregar estudiante** - Formulario con validación de datos
+- **Listar estudiantes** - Tabla interactiva con ordenamiento
+- **Buscar estudiantes** - Búsqueda por nombre o apellido
+- **Actualizar datos** - Doble clic en fila o botón editar
+- **Eliminar estudiante** - Con confirmación de seguridad
 
 ### Validaciones
-- ✅ Nombre y apellido requeridos (no vacíos)
-- ✅ Edad debe ser mayor a 0
-- ✅ Validación de entrada de datos
-- ✅ Manejo de excepciones
+- Nombre y apellido requeridos
+- Edad entre 1 y 120 años
+- Validación de formato de email
+- Manejo de excepciones con mensajes amigables
 
-### Funcionalidades Adicionales
-- ✅ Interfaz de menú amigable
-- ✅ Estadísticas de estudiantes
-- ✅ Procedimientos almacenados en SQL Server
-- ✅ Índices para optimizar búsquedas
+### Funcionalidades de la Interfaz
+- Diseño moderno con colores profesionales
+- Tabla con filas alternadas para mejor lectura
+- Estadísticas en tiempo real
+- Búsqueda con Enter o botón
+- Doble clic para editar estudiante
 
 ## Estructura del Proyecto
 
@@ -36,54 +71,40 @@ GestionEstudiantes/
 ├── Repositories/
 │   └── EstudianteRepository.cs # Lógica de acceso a datos (CRUD)
 ├── UI/
-│   └── Menu.cs                 # Interfaz de usuario
+│   ├── Menu.cs                 # Interfaz de consola (legacy)
+│   ├── FormPrincipal.cs        # Ventana principal
+│   └── FormEstudiante.cs       # Formulario agregar/editar
+├── Resources/                  # Recursos (iconos, imágenes)
 ├── Scripts/
-│   └── CrearBaseDatos.sql      # Script SQL para crear BD
+│   └── CrearBaseDatos.sql      # Script SQL (referencia)
 ├── Program.cs                  # Punto de entrada
 └── GestionEstudiantes.csproj   # Proyecto C#
 ```
 
 ## Requisitos Previos
 
-- .NET SDK 10.0 o superior
-- SQL Server (Express o superior)
+- .NET SDK 8.0 o superior
+- Windows 10/11 (para Windows Forms)
 - Visual Studio Code o Visual Studio
 
-## Configuración Inicial
+## Instalación y Ejecución
 
-### Paso 1: Crear la Base de Datos
+### Paso 1: Clonar o Descargar el Proyecto
 
-1. Abre SQL Server Management Studio (SSMS)
-2. Conectate a tu servidor SQL Server (generalmente `.\SQLEXPRESS`)
-3. Abre el script: `Scripts/CrearBaseDatos.sql`
-4. Ejecuta el script completo (F5 o Ctrl+E)
-
-El script realizará:
-- Crear la base de datos `GestionEstudiantes`
-- Crear la tabla `Estudiantes`
-- Crear índices para optimizar búsquedas
-- Crear procedimientos almacenados
-- Insertar datos de prueba
-
-### Paso 2: Configurar la Cadena de Conexión (si es necesario)
-
-Si tu SQL Server tiene una configuración diferente, edita `Data/EstudianteDbContext.cs`:
-
-```csharp
-string connectionString = @"Server=TU_SERVIDOR;Database=GestionEstudiantes;Trusted_Connection=true;";
+```bash
+git clone <url-del-repositorio>
+cd GestionEstudiantes
 ```
 
-Reemplaza `TU_SERVIDOR` con:
-- `.\SQLEXPRESS` - SQL Server Express (por defecto)
-- `localhost` - SQL Server local
-- `(local)` - Otra forma de local
+### Paso 2: Restaurar Dependencias
+
+```bash
+dotnet restore
+```
 
 ### Paso 3: Compilar y Ejecutar
 
 ```bash
-# Navega al directorio del proyecto
-cd GestionEstudiantes
-
 # Compila el proyecto
 dotnet build
 
@@ -91,105 +112,72 @@ dotnet build
 dotnet run
 ```
 
+La base de datos SQLite se crea automáticamente en:
+- `%APPDATA%/GestionEstudiantes/estudiantes.db`
+
 ## Modelo de Datos
 
 ### Tabla: Estudiantes
 
 | Campo | Tipo | Restricciones |
 |-------|------|---------------|
-| Id | INT | PK, Identity(1,1) |
+| Id | INT | PK, Autoincrement |
 | Nombre | NVARCHAR(100) | NOT NULL |
 | Apellido | NVARCHAR(100) | NOT NULL |
 | Edad | INT | NOT NULL, > 0 |
 | Email | NVARCHAR(100) | NULL |
 | Telefono | NVARCHAR(20) | NULL |
-| FechaRegistro | DATETIME | DEFAULT GETDATE() |
-
-## Procedimientos Almacenados
-
-1. **sp_AgregarEstudiante** - Insertar nuevo estudiante con validaciones
-2. **sp_ObtenerTodosEstudiantes** - Obtener lista completa
-3. **sp_ObtenerEstudiantePorId** - Buscar por ID
-4. **sp_BuscarEstudiantePorNombre** - Buscar por nombre/apellido
-5. **sp_ActualizarEstudiante** - Actualizar registros
-6. **sp_EliminarEstudiante** - Eliminar registros
+| FechaRegistro | DATETIME | DEFAULT datetime('now') |
 
 ## Uso de la Aplicación
 
-### Menú Principal
+### Agregar Estudiante
+1. Clic en el botón verde "Agregar Estudiante"
+2. Completa el formulario con los datos
+3. Clic en "Guardar"
 
-```
-╔════════════════════════════════════════╗
-║   SISTEMA DE GESTIÓN DE ESTUDIANTES    ║
-╚════════════════════════════════════════╝
+### Editar Estudiante
+1. Selecciona un estudiante en la tabla
+2. Clic en "Editar Estudiante" o doble clic en la fila
+3. Modifica los datos
+4. Clic en "Guardar"
 
-1. Agregar estudiante
-2. Listar todos los estudiantes
-3. Buscar estudiante por ID
-4. Buscar estudiante por nombre
-5. Actualizar estudiante
-6. Eliminar estudiante
-7. Ver estadísticas
-8. Salir
-```
+### Eliminar Estudiante
+1. Selecciona un estudiante en la tabla
+2. Clic en "Eliminar Estudiante"
+3. Confirma la eliminación
 
-### Ejemplos de Uso
-
-#### 1. Agregar Estudiante
-- Selecciona opción 1
-- Ingresa nombre, apellido, edad, email y teléfono
-- El sistema valida y confirma
-
-#### 2. Listar Estudiantes
-- Selecciona opción 2
-- Verás tabla con todos los estudiantes
-
-#### 3. Buscar por Nombre
-- Selecciona opción 4
-- Ingresa término de búsqueda
-- Muestra resultados coincidentes
-
-#### 4. Ver Estadísticas
-- Selecciona opción 7
-- Muestra:
-  - Total de estudiantes
-  - Edad promedio
-  - Edad máxima
-  - Edad mínima
+### Buscar Estudiante
+1. Escribe el nombre o apellido en el campo de búsqueda
+2. Presiona Enter o clic en "Buscar"
+3. Para ver todos, limpia el campo y presiona "Refrescar Lista"
 
 ## Tecnologías Utilizadas
 
-- **Lenguaje**: C# 11+
-- **Framework**: .NET 10.0
-- **ORM**: Entity Framework Core 9.0
-- **Base de Datos**: SQL Server
+- **Lenguaje**: C# 12
+- **Framework**: .NET 8.0
+- **UI**: Windows Forms
+- **ORM**: Entity Framework Core 8.0
+- **Base de Datos**: SQLite
 - **Patrón**: Repository Pattern
 
-## Mejoras Posibles
+## Paleta de Colores
 
-- [ ] Interfaz gráfica (WPF o Windows Forms)
-- [ ] Autenticación de usuarios
-- [ ] Exportar datos a Excel/PDF
-- [ ] Copias de seguridad automáticas
+- **Azul principal**: #3B82F6 (encabezados, botones primarios)
+- **Verde éxito**: #22C55E (botón agregar)
+- **Rojo error**: #EF4444 (botón eliminar)
+- **Gris neutro**: #6B7280 (botón refrescar)
+- **Fondo claro**: #F5F7FA (fondo principal)
+- **Blanco**: #FFFFFF (paneles y tarjetas)
+
+## Mejoras Futuras
+
+- [ ] Exportar datos a Excel/CSV
+- [ ] Tema oscuro
+- [ ] Gráficos de estadísticas
 - [ ] Historial de cambios
-- [ ] API REST
-- [ ] Aplicación web (ASP.NET Core)
-
-## Troubleshooting
-
-### Error: "No .NET SDKs were found"
-```bash
-# Descarga e instala .NET SDK desde https://dotnet.microsoft.com/download
-```
-
-### Error: "Database connection failed"
-- Verifica que SQL Server esté corriendo
-- Revisa la cadena de conexión en `EstudianteDbContext.cs`
-- Asegúrate de que la base de datos fue creada con el script SQL
-
-### Error: "Connection timeout"
-- SQL Server puede estar en otra máquina
-- Modifica la cadena de conexión con la dirección correcta
+- [ ] Backup automático
+- [ ] Múltiples usuarios
 
 ## Autor
 Desarrollado como trabajo de curso - Universidad de Cundinamarca
